@@ -21,9 +21,9 @@ const sockets = require('../socket.io');
 const authenticationController = module.exports;
 
 async function registerAndLoginUser(req, res, userData) {
-	if (!userData.hasOwnProperty('email')) {
-		userData.updateEmail = true;
-	}
+	// if (!userData.hasOwnProperty('email')) {
+	//   userData.updateEmail = true;
+	// }
 
 	const data = await user.interstitials.get(req, userData);
 
