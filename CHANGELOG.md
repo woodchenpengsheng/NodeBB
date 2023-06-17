@@ -1,3 +1,68 @@
+#### v3.1.5 (2023-06-13)
+
+##### Chores
+
+*  fix persona (74174414)
+*  up themes (97ff1f11)
+*  incrementing version number - v3.1.4 (2452783c)
+*  update changelog for v3.1.4 (633dc2de)
+*  incrementing version number - v3.1.3 (3b4e9d3f)
+*  incrementing version number - v3.1.2 (40fa3489)
+*  incrementing version number - v3.1.1 (40250733)
+*  incrementing version number - v3.1.0 (0cb386bd)
+*  incrementing version number - v3.0.1 (26f6ea49)
+*  incrementing version number - v3.0.0 (224e08cd)
+
+##### New Features
+
+*  add back support for req.body._csrf (67f44a32)
+
+##### Bug Fixes
+
+*  improper neutralization of user input in image wrapping code (1d1639d4)
+*  don't update edit data if edited timestamp is not available (c5cd76e7)
+*  filter null nav items (b73f307a)
+*  rimraf usage in user image delete (3256fb30)
+*  closes #11620, fix copy code when line numbers are enabled (82e26829)
+*  logins dashboard user images (8cb6ebb9)
+
+##### Refactors
+
+*  change welcome headers to be smaller (0c4870ec)
+
+##### Tests
+
+*  remove socket.io test (24ebb153)
+
+#### v3.1.4 (2023-05-18)
+
+##### Chores
+
+*  up markdown (51bf5e95)
+*  incrementing version number - v3.1.3 (3b4e9d3f)
+*  update changelog for v3.1.3 (9924fde6)
+*  incrementing version number - v3.1.2 (40fa3489)
+*  incrementing version number - v3.1.1 (40250733)
+*  incrementing version number - v3.1.0 (0cb386bd)
+*  incrementing version number - v3.0.1 (26f6ea49)
+*  incrementing version number - v3.0.0 (224e08cd)
+
+##### Bug Fixes
+
+*  textarea on error (469aa551)
+*  closes #11613, closes #11614 (d8d486a6)
+*  closes #11612 (8f6a68ca)
+*  #11572 (2910cb2b)
+
+##### Other Changes
+
+* //github.com/NodeBB/NodeBB/issues/11612 (24bd9d4e)
+
+##### Refactors
+
+*  remove unused require (05b58c70)
+*  remove log (ca2be0e8)
+
 #### v3.1.3 (2023-05-15)
 
 ##### Chores
