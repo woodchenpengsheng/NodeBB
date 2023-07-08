@@ -58,9 +58,10 @@ helpers.buildQueryString = function (query, key, value) {
 
 helpers.addLinkTags = function (params) {
 	params.res.locals.linkTags = params.res.locals.linkTags || [];
+	const page = params.page > 1 ? `?page=${params.page}` : '';
 	params.res.locals.linkTags.push({
 		rel: 'canonical',
-		href: `${url}/${params.url}`,
+		href: `${url}/${params.url}${page}`,
 	});
 
 	params.tags.forEach((rel) => {
@@ -238,10 +239,11 @@ helpers.buildBreadcrumbs = function (crumbs) {
 };
 
 helpers.buildTitle = function (pageTitle) {
-	const titleLayout = meta.config.titleLayout || '{pageTitle} | {browserTitle}';
+	pageTitle = pageTitle || '';
+	const titleLayout = meta.config.titleLayout || `${pageTitle ? '{pageTitle} | ' : ''}{browserTitle}`;
 
 	const browserTitle = validator.escape(String(meta.config.browserTitle || meta.config.title || 'NodeBB'));
-	pageTitle = pageTitle || '';
+
 	const title = titleLayout.replace('{pageTitle}', () => pageTitle).replace('{browserTitle}', () => browserTitle);
 	return title;
 };
