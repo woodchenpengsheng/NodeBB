@@ -87,7 +87,7 @@ program
 	.option('--log-level <level>', 'Default logging level to use', 'info')
 	.option('--config <value>', 'Specify a config file', 'config.json')
 	.option('-d, --dev', 'Development mode, including verbose logging', false)
-	.option('-l, --log', 'Log subprocess output to console', true);
+	.option('-l, --log', 'Log subprocess output to console', false);
 
 // provide a yargs object ourselves
 // otherwise yargs will consume `--help` or `help`
