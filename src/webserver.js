@@ -223,7 +223,32 @@ function setupFavicon(app) {
 	}
 }
 
+// 有一些没发contentType application/json的标志的，下面的bodyParser会异常
+async function configureBodyRawDataJsonParser(app) {
+	app.use((req, res, next) => {
+		if (req.path.startsWith('/api/v3/plugins/recharge/notify')) {
+			const reqData = [];
+			let size = 0;
+			req.on('data', (data) => {
+				reqData.push(data);
+				size += data.length;
+			});
+			req.on('end', () => {
+				req.reqData = Buffer.concat(reqData, size);
+				const rawData = req.reqData.toString('utf8');
+				try {
+					req.jsonData = JSON.parse(rawData);
+				} catch (error) {
+					req.jsonData = null;
+				}
+			});
+		}
+		next();
+	});
+}
+
 function configureBodyParser(app) {
+	configureBodyRawDataJsonParser(app);
 	const urlencodedOpts = nconf.get('bodyParser:urlencoded') || {};
 	if (!urlencodedOpts.hasOwnProperty('extended')) {
 		urlencodedOpts.extended = true;
