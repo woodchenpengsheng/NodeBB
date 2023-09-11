@@ -149,11 +149,11 @@ module.exports = function (Posts) {
 
 		const bulkRemove = [];
 		const bulkAdd = [];
-		let repChange = 0;
+		// let repChange = 0;
 		const postsByUser = {};
 		postData.forEach((post, i) => {
 			post.cid = cids[i];
-			repChange += post.votes;
+			// repChange += post.votes;
 			bulkRemove.push([`uid:${post.uid}:posts`, post.pid]);
 			bulkRemove.push([`cid:${post.cid}:uid:${post.uid}:pids`, post.pid]);
 			bulkRemove.push([`cid:${post.cid}:uid:${post.uid}:pids:votes`, post.pid]);
@@ -171,7 +171,7 @@ module.exports = function (Posts) {
 			db.setObjectField(pids.map(pid => `post:${pid}`), 'uid', toUid),
 			db.sortedSetRemoveBulk(bulkRemove),
 			db.sortedSetAddBulk(bulkAdd),
-			user.incrementUserReputationBy(toUid, repChange),
+			// user.incrementUserReputationBy(toUid, repChange),
 			handleMainPidOwnerChange(postData, toUid),
 			updateTopicPosters(postData, toUid),
 		]);
@@ -190,10 +190,10 @@ module.exports = function (Posts) {
 
 	async function reduceCounters(postsByUser) {
 		await async.eachOfSeries(postsByUser, async (posts, uid) => {
-			const repChange = posts.reduce((acc, val) => acc + val.votes, 0);
+			// const repChange = posts.reduce((acc, val) => acc + val.votes, 0);
 			await Promise.all([
 				user.updatePostCount(uid),
-				user.incrementUserReputationBy(uid, -repChange),
+				// user.incrementUserReputationBy(uid, -repChange),
 			]);
 		});
 	}

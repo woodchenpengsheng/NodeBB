@@ -190,15 +190,19 @@ module.exports = function (Posts) {
 		}
 
 		const postData = await Posts.getPostFields(pid, ['pid', 'uid', 'tid']);
-		const newReputation = await user.incrementUserReputationBy(postData.uid, type === 'upvote' ? 1 : -1);
+		const reputation = await user.getUserField(postData.uid, 'reputation');
+		// const newReputation = await user.incrementUserReputationBy(postData.uid, type === 'upvote' ? 1 : -1);
 
 		await adjustPostVotes(postData, uid, type, unvote);
 
 		await fireVoteHook(postData, uid, type, unvote, voteStatus);
 
 		return {
+			// user: {
+			// reputation: newReputation,
+			// },
 			user: {
-				reputation: newReputation,
+				reputation,
 			},
 			fromuid: uid,
 			post: postData,
