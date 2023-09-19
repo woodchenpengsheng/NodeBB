@@ -75,6 +75,7 @@ topicsAPI.create = async function (caller, data) {
 
 	const result = await topics.post(payload);
 	await topics.thumbs.migrate(data.uuid, result.topicData.tid);
+	await topics.identity.migrate(data.uuid, result.topicData.tid);
 
 	socketHelpers.emitToUids('event:new_post', { posts: [result.postData] }, [caller.uid]);
 	socketHelpers.emitToUids('event:new_topic', result.topicData, [caller.uid]);
@@ -203,6 +204,28 @@ topicsAPI.deleteTags = async (caller, { tid }) => {
 	}
 
 	await topics.deleteTopicTags(tid);
+};
+
+topicsAPI.getIdentity = async (caller, { tid }) => {
+	if (isFinite(tid)) {
+		const [exists, canRead] = await Promise.all([
+			topics.exists(tid),
+			privileges.topics.can('topics:read', tid, caller.uid),
+		]);
+		if (!exists) {
+			throw new Error('[[error:not-found]]');
+		}
+		if (!canRead) {
+			throw new Error('[[error:not-allowed]]');
+		}
+	}
+
+	return await topics.identity.get(tid);
+};
+
+topicsAPI.deleteIdentity = async (caller, { tid }) => {
+	await topicsAPI._checkThumbPrivileges({ tid: tid, uid: caller.uid });
+	await topics.identity.delete(tid);
 };
 
 topicsAPI.getThumbs = async (caller, { tid }) => {

@@ -34,6 +34,7 @@ Topics.thumbs = require('./thumbs');
 require('./bookmarks')(Topics);
 require('./merge')(Topics);
 Topics.events = require('./events');
+Topics.identity = require('./identity');
 
 Topics.exists = async function (tids) {
 	return await db.exists(
@@ -90,13 +91,14 @@ Topics.getTopicsByTids = async function (tids, options) {
 			return data;
 		}
 
-		const [teasers, users, userSettings, categoriesData, guestHandles, thumbs] = await Promise.all([
+		const [teasers, users, userSettings, categoriesData, guestHandles, thumbs, identities] = await Promise.all([
 			Topics.getTeasers(topics, options),
 			user.getUsersFields(uids, ['uid', 'username', 'fullname', 'userslug', 'reputation', 'postcount', 'picture', 'signature', 'banned', 'status']),
 			loadShowfullnameSettings(),
 			categories.getCategoriesFields(cids, ['cid', 'name', 'slug', 'icon', 'backgroundImage', 'imageClass', 'bgColor', 'color', 'disabled']),
 			loadGuestHandles(),
 			Topics.thumbs.load(topics),
+			Topics.identity.load(topics),
 		]);
 
 		users.forEach((userObj, idx) => {
@@ -113,6 +115,7 @@ Topics.getTopicsByTids = async function (tids, options) {
 			categoriesMap: _.zipObject(cids, categoriesData),
 			tidToGuestHandle: _.zipObject(guestTopics.map(t => t.tid), guestHandles),
 			thumbs,
+			identities,
 		};
 	}
 
@@ -127,6 +130,7 @@ Topics.getTopicsByTids = async function (tids, options) {
 	const sortNewToOld = callerSettings.topicPostSort === 'newest_to_oldest';
 	result.topics.forEach((topic, i) => {
 		if (topic) {
+			topic.identity = result.identities[i];
 			topic.thumbs = result.thumbs[i];
 			topic.category = result.categoriesMap[topic.cid];
 			topic.user = topic.uid ? result.usersMap[topic.uid] : { ...result.usersMap[topic.uid] };
@@ -167,6 +171,7 @@ Topics.getTopicWithPosts = async function (topicData, set, uid, start, stop, rev
 		related,
 		thumbs,
 		events,
+		identities,
 	] = await Promise.all([
 		Topics.getTopicPosts(topicData, set, start, stop, uid, reverse),
 		categories.getCategoryData(topicData.cid),
@@ -180,9 +185,11 @@ Topics.getTopicWithPosts = async function (topicData, set, uid, start, stop, rev
 		Topics.getRelatedTopics(topicData, uid),
 		Topics.thumbs.load([topicData]),
 		Topics.events.get(topicData.tid, uid, reverse),
+		Topics.identity.load([topicData]),
 	]);
 
 	topicData.thumbs = thumbs[0];
+	topicData.identity = identities[0];
 	topicData.posts = posts;
 	topicData.events = events;
 	topicData.posts.forEach((p) => {

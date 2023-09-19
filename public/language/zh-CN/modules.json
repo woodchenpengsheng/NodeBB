@@ -109,5 +109,9 @@
     "thumbs.modal.resize-note": "注意：此论坛被配置为缩放主题缩略图到最大值为 %1",
     "thumbs.modal.add": "添加缩略图",
     "thumbs.modal.remove": "移除缩略图",
-    "thumbs.modal.confirm-remove": "您确定您要移除此缩略图吗？"
+    "thumbs.modal.confirm-remove": "您确定您要移除此缩略图吗？",
+    "identity.modal.title": "管理主题身份",
+    "identity.modal.no-identity": "没有找到身份信息。",
+    "identity.modal.update": "更新身份",
+    "identity.modal.clear": "清空"
 }

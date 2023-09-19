@@ -122,6 +122,26 @@ Topics.deleteTags = async (req, res) => {
 	helpers.formatApiResponse(200, res);
 };
 
+Topics.getIdentity = async (req, res) => {
+	helpers.formatApiResponse(200, res, await api.topics.getIdentity(req, { ...req.params }));
+};
+
+Topics.updateIdentity = async (req, res) => {
+	await api.topics._checkThumbPrivileges({ tid: req.params.tid, uid: req.user.uid });
+	const result = await topics.identity.associate({
+		id: req.params.tid,
+		identity: JSON.stringify(req.body),
+	});
+	helpers.formatApiResponse(200, res, result);
+};
+
+Topics.deleteIdentity = async (req, res) => {
+	await api.topics.deleteIdentity(req, {
+		tid: req.params.tid,
+	});
+	helpers.formatApiResponse(200, res, await topics.identity.get(req.params.tid));
+};
+
 Topics.getThumbs = async (req, res) => {
 	helpers.formatApiResponse(200, res, await api.topics.getThumbs(req, { ...req.params }));
 };

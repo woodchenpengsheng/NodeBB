@@ -172,6 +172,7 @@
     "composer.thumb_file_label": "或上传文件",
     "composer.thumb_remove": "清除字段",
     "composer.drag_and_drop_images": "拖拽图片到此处",
+    "composer.identity": "给此主题添加身份信息",
     "more_users_and_guests": "%1 名用户和 %2 名游客",
     "more_users": "%1 名用户",
     "more_guests": "%1 名游客",
