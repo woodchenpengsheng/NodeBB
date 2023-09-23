@@ -21,6 +21,8 @@ module.exports = function () {
 	setupApiRoute(router, 'put', '/:tid/state', [...middlewares], controllers.write.topics.restore);
 	setupApiRoute(router, 'delete', '/:tid/state', [...middlewares], controllers.write.topics.delete);
 
+	setupApiRoute(router, 'put', '/:tid/unlockContact', [...middlewares], controllers.write.topics.unlockContact);
+
 	setupApiRoute(router, 'put', '/:tid/pin', [...middlewares, middleware.assert.topic], controllers.write.topics.pin);
 	setupApiRoute(router, 'delete', '/:tid/pin', [...middlewares], controllers.write.topics.unpin);
 

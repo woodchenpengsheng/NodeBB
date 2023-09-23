@@ -190,16 +190,18 @@ privsPosts.canDelete = async function (pid, uid) {
 
 privsPosts.canFlag = async function (pid, uid) {
 	const targetUid = await posts.getPostField(pid, 'uid');
-	const [userReputation, isAdminOrModerator, targetPrivileged, reporterPrivileged] = await Promise.all([
+	const [userReputation, isAdminOrModerator, targetPrivileged,
+		reporterPrivileged, reporterUnLockFlag] = await Promise.all([
 		user.getUserField(uid, 'reputation'),
 		isAdminOrMod(pid, uid),
 		user.isPrivileged(targetUid),
 		user.isPrivileged(uid),
+		user.isPrivilegedForUnLockContact(pid, uid),
 	]);
 	const minimumReputation = meta.config['min:rep:flag'];
 	let canFlag = isAdminOrModerator || (userReputation >= minimumReputation);
 
-	if (targetPrivileged && !reporterPrivileged) {
+	if (targetPrivileged && !reporterPrivileged && !reporterUnLockFlag) {
 		canFlag = false;
 	}
 

@@ -40,6 +40,7 @@ require('./info')(User);
 require('./online')(User);
 require('./blocks')(User);
 require('./uploads')(User);
+require('./lockcontact')(User);
 
 User.exists = async function (uids) {
 	return await (

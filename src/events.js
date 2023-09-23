@@ -77,6 +77,8 @@ events.types = [
 	'getUsersCSV',
 	'chat-room-deleted',
 	// To add new types from plugins, just Array.push() to this array
+	'unlock-identity',
+	'recharge-notify',
 ];
 
 /**

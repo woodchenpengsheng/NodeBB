@@ -35,6 +35,7 @@ require('./bookmarks')(Topics);
 require('./merge')(Topics);
 Topics.events = require('./events');
 Topics.identity = require('./identity');
+Topics.lockcontact = require('./lockcontact');
 
 Topics.exists = async function (tids) {
 	return await db.exists(
@@ -172,6 +173,7 @@ Topics.getTopicWithPosts = async function (topicData, set, uid, start, stop, rev
 		thumbs,
 		events,
 		identities,
+		unlockContacts,
 	] = await Promise.all([
 		Topics.getTopicPosts(topicData, set, start, stop, uid, reverse),
 		categories.getCategoryData(topicData.cid),
@@ -186,10 +188,12 @@ Topics.getTopicWithPosts = async function (topicData, set, uid, start, stop, rev
 		Topics.thumbs.load([topicData]),
 		Topics.events.get(topicData.tid, uid, reverse),
 		Topics.identity.load([topicData]),
+		Topics.lockcontact.load([topicData], uid),
 	]);
 
 	topicData.thumbs = thumbs[0];
 	topicData.identity = identities[0];
+	topicData.unlockContact = unlockContacts[0];
 	topicData.posts = posts;
 	topicData.events = events;
 	topicData.posts.forEach((p) => {

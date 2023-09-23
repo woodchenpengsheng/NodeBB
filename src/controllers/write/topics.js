@@ -142,6 +142,16 @@ Topics.deleteIdentity = async (req, res) => {
 	helpers.formatApiResponse(200, res, await topics.identity.get(req.params.tid));
 };
 
+Topics.unlockContact = async (req, res) => {
+	const unlockResult = await api.topics.unLockContact(req, {
+		...req.body,
+		tid: req.params.tid,
+		uid: req.uid,
+	});
+
+	helpers.formatApiResponse(200, res, unlockResult);
+};
+
 Topics.getThumbs = async (req, res) => {
 	helpers.formatApiResponse(200, res, await api.topics.getThumbs(req, { ...req.params }));
 };

@@ -14,6 +14,7 @@ const { doTopicAction } = apiHelpers;
 
 const websockets = require('../socket.io');
 const socketHelpers = require('../socket.io/helpers');
+const events = require('../events');
 
 const topicsAPI = module.exports;
 
@@ -226,6 +227,74 @@ topicsAPI.getIdentity = async (caller, { tid }) => {
 topicsAPI.deleteIdentity = async (caller, { tid }) => {
 	await topicsAPI._checkThumbPrivileges({ tid: tid, uid: caller.uid });
 	await topics.identity.delete(tid);
+};
+
+topicsAPI._checkUnLockPrivileges = async function ({ tid, uid }) {
+	// Sanity-check the tid if it's strictly not a uuid
+	if ((isNaN(parseInt(tid, 10)) || !await topics.exists(tid))) {
+		throw new Error('[[error:no-topic]]');
+	}
+
+	if (await user.isUnLockContact(uid, tid) || await topics.lockcontact.isUnLockContact(uid, tid)) {
+		throw new Error('[[error:already-unlock-contact]]');
+	}
+
+	const [isAdmin, isGlobalMod] = await Promise.all([
+		user.isAdministrator(uid),
+		user.isGlobalModerator(uid),
+	]);
+
+	if (isAdmin || isGlobalMod) {
+		throw new Error('[[error:no-need-unlock-contact]]');
+	}
+};
+
+topicsAPI._checkUnLockContactReputation = async function (uid) {
+	if (meta.config['reputation:disabled']) {
+		return;
+	}
+	const [reputation, isPrivileged] = await Promise.all([
+		user.getUserField(uid, 'reputation'),
+		user.isPrivileged(uid),
+	]);
+
+	const metaSettings = await meta.settings.get('recharge');
+	const configReputation = parseInt(metaSettings['assume-reputation'], 10);
+	if (!isPrivileged && configReputation > reputation) {
+		throw new Error(`[[error:not-enough-reputation-to-unlock-contact, ${configReputation}]]`);
+	}
+};
+
+topicsAPI.unLockContact = async (caller, data) => {
+	if (!data || !data.tid) {
+		throw new Error('[[error:invalid-data]]');
+	}
+
+	if (!data.uid) {
+		throw new Error('[[error:not-logged-in]]');
+	}
+
+	const { tid, uid } = data;
+	await topicsAPI._checkUnLockPrivileges({ tid, uid });
+	await topicsAPI._checkUnLockContactReputation(uid);
+	const metaSettings = await meta.settings.get('recharge');
+	const configReputation = parseInt(metaSettings['assume-reputation'], 10);
+	const [, , newReputation] = await Promise.all([
+		topics.lockcontact.unLockContact(uid, tid),
+		user.unLockContact(uid, tid),
+		user.incrementUserReputationBy(uid, -configReputation),
+	]);
+
+	await events.log({
+		type: 'unlock-identity',
+		uid: caller.uid,
+		targetUid: data.uid,
+		ip: caller.ip,
+		tid,
+		reputation: configReputation,
+	});
+
+	return newReputation;
 };
 
 topicsAPI.getThumbs = async (caller, { tid }) => {

@@ -19,4 +19,8 @@
 		<label class="form-label" for="identityDescription">介绍</label>
 		<input type="text" id="identityDescription" name="identityDescription" class="form-control" placeholder="介绍" value="{identity.identityDescription}" />
 	</div>
+	<div class="mb-3">
+		<label class="form-label" for="identityContactWay">联系方式</label>
+		<input type="text" id="identityContactWay" name="identityContactWay" class="form-control" placeholder="联系方式" value="{identity.identityContactWay}" />
+	</div>
 </form>

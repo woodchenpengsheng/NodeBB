@@ -17,11 +17,12 @@ define('forum/topic', [
 	'alerts',
 	'bootbox',
 	'clipboard',
+	'forum/topic/unlockContact',
 ], function (
 	infinitescroll, threadTools, postTools,
 	events, posts, navigator, sort, quickreply,
 	components, storage, hooks, api, alerts,
-	bootbox, clipboard
+	bootbox, clipboard, unlockContact
 ) {
 	const Topic = {};
 	let tid = 0;
@@ -53,6 +54,7 @@ define('forum/topic', [
 
 		postTools.init(tid);
 		threadTools.init(tid, $('.topic'));
+		unlockContact.init(tid, $('[component="topic/contact"]'));
 		events.init();
 
 		sort.handleSort('topicPostSort', 'topic/' + ajaxify.data.slug);

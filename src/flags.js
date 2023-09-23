@@ -294,16 +294,20 @@ Flags.validate = async function (payload) {
 		user.isPrivileged(target.uid),
 		user.isPrivileged(reporter.uid),
 	]);
-	if (targetPrivileged && !reporterPrivileged) {
-		throw new Error('[[error:cant-flag-privileged]]');
-	}
 
 	if (payload.type === 'post') {
+		const reporterUnLockFlag = await user.isPrivilegedForUnLockContact(payload.id, reporter.uid);
+		if (targetPrivileged && !reporterPrivileged && !reporterUnLockFlag) {
+			throw new Error('[[error:cant-flag-privileged]]');
+		}
 		const editable = await privileges.posts.canEdit(payload.id, payload.uid);
 		if (!editable.flag && !meta.config['reputation:disabled'] && reporter.reputation < meta.config['min:rep:flag']) {
 			throw new Error(`[[error:not-enough-reputation-to-flag, ${meta.config['min:rep:flag']}]]`);
 		}
 	} else if (payload.type === 'user') {
+		if (targetPrivileged && !reporterPrivileged) {
+			throw new Error('[[error:cant-flag-privileged]]');
+		}
 		if (parseInt(payload.id, 10) === parseInt(payload.uid, 10)) {
 			throw new Error('[[error:cant-flag-self]]');
 		}

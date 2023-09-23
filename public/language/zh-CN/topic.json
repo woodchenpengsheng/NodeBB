@@ -112,6 +112,7 @@
     "thread_tools.purge_confirm": "确认清除此主题吗？",
     "thread_tools.merge_topics": "合并主题",
     "thread_tools.merge": "合并主题",
+    "topic_unlock_contact": "确定消耗%1声望解锁联系方式",
     "topic_move_success": "注意：此主题将会被移动到“1%”。点击此处可取消。",
     "topic_move_multiple_success": "注意：以下主题将会被移动到“%1”，点击此处可取消。",
     "topic_move_all_success": "注意 ：全部主题都将被移动到“1%”，点击此处可取消。",
