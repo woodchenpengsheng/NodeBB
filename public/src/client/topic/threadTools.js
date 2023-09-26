@@ -2,6 +2,7 @@
 
 
 define('forum/topic/threadTools', [
+	'forum/topic/freeReputation',
 	'components',
 	'translator',
 	'handleBack',
@@ -11,7 +12,7 @@ define('forum/topic/threadTools', [
 	'bootbox',
 	'alerts',
 	'bootstrap',
-], function (components, translator, handleBack, posts, api, hooks, bootbox, alerts, bootstrap) {
+], function (freeReputation, components, translator, handleBack, posts, api, hooks, bootbox, alerts, bootstrap) {
 	const ThreadTools = {};
 
 	ThreadTools.init = function (tid, topicContainer) {
@@ -144,6 +145,8 @@ define('forum/topic/threadTools', [
 		topicContainer.on('click', '[component="topic/ignoring"]', function () {
 			changeWatching('ignore');
 		});
+
+		freeReputation.init(tid, topicContainer);
 
 		function changeWatching(type, state = 1) {
 			const method = state ? 'put' : 'del';

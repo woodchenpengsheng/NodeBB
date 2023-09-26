@@ -234,6 +234,9 @@ topicsAPI._checkUnLockPrivileges = async function ({ tid, uid }) {
 	if ((isNaN(parseInt(tid, 10)) || !await topics.exists(tid))) {
 		throw new Error('[[error:no-topic]]');
 	}
+	if (!await topics.lockcontact.isTopicNeedUnLock(tid)) {
+		throw new Error('[[error:topic-no-need-unlock]]');
+	}
 
 	if (await user.isUnLockContact(uid, tid) || await topics.lockcontact.isUnLockContact(uid, tid)) {
 		throw new Error('[[error:already-unlock-contact]]');
@@ -295,6 +298,35 @@ topicsAPI.unLockContact = async (caller, data) => {
 	});
 
 	return newReputation;
+};
+
+topicsAPI.freeTopicReputation = async (caller, data) => {
+	if (!data || !data.tid) {
+		throw new Error('[[error:invalid-data]]');
+	}
+
+	if (!data.uid) {
+		throw new Error('[[error:not-logged-in]]');
+	}
+
+	const { tid, uid } = data;
+	if (!await user.isPrivileged(uid)) {
+		throw new Error('[[error:no-privileges]]');
+	}
+
+	const { free } = data;
+	// 如果期望free的话
+	if (free) {
+		if (!await topics.lockcontact.isTopicNeedUnLock(tid)) {
+			throw new Error('[[error:topic-no-need-unlock]]');
+		}
+		await topics.lockcontact.updateUnLockContactReputation(tid, -1);
+	} else {
+		if (await topics.lockcontact.isTopicNeedUnLock(tid)) {
+			throw new Error('[[error:topic-already-locked]]');
+		}
+		await topics.lockcontact.updateUnLockContactReputation(tid, 0);
+	}
 };
 
 topicsAPI.getThumbs = async (caller, { tid }) => {

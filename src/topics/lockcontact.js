@@ -4,6 +4,8 @@ const _ = require('lodash');
 const db = require('../database');
 const topics = require('.');
 const user = require('../user');
+const cache = require('../cache');
+const utils = require('../utils');
 
 
 const LockContact = module.exports;
@@ -23,11 +25,18 @@ LockContact.load = async function (topicsData, uid) {
 				return false;
 			}
 
+			const checkResult = await LockContact.isTopicNeedUnLock(t.tid);
+			// 如果当前topic不需要进行解锁，直接返回true
+			if (!checkResult) {
+				return true;
+			}
+
 			const [isAdmin, isGlobalMod] = await Promise.all([
 				user.isAdministrator(uid),
 				user.isGlobalModerator(uid),
 			]);
 
+			// 如果是管理员或者板块负责人的话，免所打开
 			if (isAdmin || isGlobalMod) {
 				return true;
 			}
@@ -76,4 +85,33 @@ LockContact.deleteAllContact = async function (tid) {
 LockContact.isUnLockContact = async function (uid, tid) {
 	const key = `tid:${tid}:contact`;
 	return await db.isSortedSetMember(key, uid);
+};
+
+// < 0表示不要声望值
+// == 0或者不存在表示跟随默认值
+// > 0表示实际要消耗的声望值
+LockContact.updateUnLockContactReputation = async function (tid, consumeReputation) {
+	await topics.setTopicField(tid, 'unLockConsumeReputation', consumeReputation);
+	const key = `unlock:consume:reputation:check:${tid}`;
+	cache.set(key, LockContact._checkTopicNeedUnLock(consumeReputation));
+};
+
+LockContact._checkTopicNeedUnLock = function (value) {
+	const transformValue = parseInt(value, 10);
+	// 传递进来的值不合法，默认就是要解锁的
+	if (!utils.isNumber(transformValue)) {
+		return true;
+	}
+	return transformValue >= 0;
+};
+
+LockContact.isTopicNeedUnLock = async function (tid) {
+	const key = `unlock:consume:reputation:check:${tid}`;
+	const value = cache.get(key);
+	if (value !== undefined) {
+		return value;
+	}
+	const consumeReputation = await topics.getTopicField(tid, 'unLockConsumeReputation');
+	cache.set(key, LockContact._checkTopicNeedUnLock(consumeReputation));
+	return cache.get(key);
 };

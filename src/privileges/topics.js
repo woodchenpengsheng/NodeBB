@@ -60,6 +60,7 @@ privsTopics.get = async function (tid, uid) {
 		disabled: disabled,
 		tid: tid,
 		uid: uid,
+		cid: topicData.cid,
 	});
 };
 

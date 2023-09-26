@@ -186,6 +186,8 @@
     "cant-flag-privileged": "您不能举报特权用户（版主/全局版主/管理员）的内容或资料",
     "self-vote": "您不能对您自己的帖子投票",
     "already-unlock-contact": "已经解锁成功",
+    "topic-no-need-unlock": "不需要进行解锁",
+    "topic-already-locked": "当前已经需要进行解锁",
     "no-need-unlock-contact": "牛逼的人不需要解锁",
     "too-many-upvotes-today": "您每天仅可进行 %1 次顶贴",
     "too-many-upvotes-today-user": "您每天只能对一个用户顶 %1 次",
