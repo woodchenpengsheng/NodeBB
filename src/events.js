@@ -79,6 +79,9 @@ events.types = [
 	// To add new types from plugins, just Array.push() to this array
 	'unlock-identity',
 	'recharge-notify',
+	'recharge-succeed',
+	'enter-recharge-page',
+	'trying-recharge',
 ];
 
 /**
