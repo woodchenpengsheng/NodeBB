@@ -115,6 +115,6 @@
     "identity.modal.update": "更新身份",
     "identity.modal.clear": "清空",
     "identity.modal.identityStatus.working": "会回复状态",
-    "identity.modal.identityStatus.breaking": ">2天休息中",
+    "identity.modal.identityStatus.breaking": ">2天假期休息中",
     "identity.modal.identityStatus.checking": ">1无反应,检查中"
 }
