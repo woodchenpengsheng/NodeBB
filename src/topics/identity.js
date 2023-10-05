@@ -12,10 +12,24 @@ Identity.load = async function (topicData) {
 	const tidsWithIdentitiy = topicsWithIdentity.map(t => t.tid);
 	const identities = await Promise.all(tidsWithIdentitiy.map(async (tid) => {
 		const value = await Identity.get(tid);
-		return JSON.parse(value.identity);
+		const parseIdentity = JSON.parse(value.identity);
+		if (parseIdentity) {
+			parseIdentity.identityStatus = parseIdentity.identityStatus || '1';
+			parseIdentity.identityStatusContext = Identity.getIdentitiyStatusContext(parseIdentity.identityStatus);
+		}
+		return parseIdentity;
 	}));
 	const tidToIdentities = _.zipObject(tidsWithIdentitiy, identities);
 	return topicData.map(t => (t && t.tid ? (tidToIdentities[t.tid] || []) : []));
+};
+
+Identity.getIdentitiyStatusContext = function (key) {
+	const map = {
+		1: '[[modules:identity.modal.identityStatus.working]]',
+		2: '[[modules:identity.modal.identityStatus.breaking]]',
+		3: '[[modules:identity.modal.identityStatus.checking]]',
+	};
+	return map[key];
 };
 
 

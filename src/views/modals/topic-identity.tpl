@@ -23,4 +23,12 @@
 		<label class="form-label" for="identityContactWay">联系方式</label>
 		<input type="text" id="identityContactWay" name="identityContactWay" class="form-control" placeholder="联系方式" value="{identity.identityContactWay}" />
 	</div>
+	<div>
+	    <label class="form-label" for="identityStatus">当前状态</label>
+        <select class="form-select" id="identityStatus" name="identityStatus" data-value="{identity.identityStatus}">
+			<option value="1">[[modules:identity.modal.identityStatus.working]]</option>
+			<option value="2">[[modules:identity.modal.identityStatus.breaking]]</option>
+			<option value="3">[[modules:identity.modal.identityStatus.checking]]</option>
+        </select>
+	</div>
 </form>

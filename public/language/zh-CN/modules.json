@@ -113,5 +113,8 @@
     "identity.modal.title": "管理主题身份",
     "identity.modal.no-identity": "没有找到身份信息。",
     "identity.modal.update": "更新身份",
-    "identity.modal.clear": "清空"
+    "identity.modal.clear": "清空",
+    "identity.modal.identityStatus.working": "正常营业中",
+    "identity.modal.identityStatus.breaking": "休息中",
+    "identity.modal.identityStatus.checking": ">1无反应,检查中"
 }

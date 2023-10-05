@@ -27,12 +27,19 @@ define('topicIdentity', [
 			]).then(results => new Promise((resolve) => {
 				const identities = results.filter(data => data.identity);
 				const identity = identities.length >= 1 ? JSON.parse(identities[0].identity) : undefined;
+				if (identity) {
+					identity.identityStatus = identity.identityStatus || '1';
+				}
 				// 现阶段最多一个
 				resolve(identity);
 			})).then(identity => Benchpress.render('modals/topic-identity', { identity })).then((html) => {
 				modal = bootbox.dialog({
 					title: '[[modules:identity.modal.title]]',
 					message: html,
+					onShown: (e) => {
+						const el = $(e.currentTarget).find('form.topic-identity-modal .form-select#identityStatus');
+						el.get(0).value = el.get(0).getAttribute('data-value');
+					},
 					onEscape: true,
 					backdrop: true,
 					buttons: {
