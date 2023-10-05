@@ -23,7 +23,7 @@ Identity.load = async function (topicData) {
 	return topicData.map(t => (t && t.tid ? (tidToIdentities[t.tid] || []) : []));
 };
 
-Identity.getIdentitiyStatusContext = function (key) {
+Identity.getIdentitiyStatusContext = function (key = 1) {
 	const map = {
 		1: '[[modules:identity.modal.identityStatus.working]]',
 		2: '[[modules:identity.modal.identityStatus.breaking]]',

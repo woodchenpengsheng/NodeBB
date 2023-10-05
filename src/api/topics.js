@@ -287,7 +287,8 @@ topicsAPI.unLockContact = async (caller, data) => {
 		user.unLockContact(uid, tid),
 		user.incrementUserReputationBy(uid, -configReputation),
 	]);
-
+	const identityData = await topics.identity.get(tid);
+	const identityObject = JSON.parse(identityData.identity);
 	await events.log({
 		type: 'unlock-identity',
 		uid: caller.uid,
@@ -295,6 +296,7 @@ topicsAPI.unLockContact = async (caller, data) => {
 		ip: caller.ip,
 		tid,
 		reputation: configReputation,
+		identityStatus: topics.identity.getIdentitiyStatusContext(identityObject.identityStatus),
 	});
 
 	return newReputation;
