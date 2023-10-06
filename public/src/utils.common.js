@@ -472,6 +472,16 @@ const utils = {
 		}
 	},
 
+	formatTimeStamp2LocalTime: function (timestamp) {
+		const date = new Date(timestamp);
+		const year = date.getFullYear();
+		const month = (date.getMonth() + 1).toString().padStart(2, '0');
+		const day = date.getDate().toString().padStart(2, '0');
+		const hour = date.getHours().toString().padStart(2, '0');
+		const minute = date.getMinutes().toString().padStart(2, '0');
+		return `${year}-${month}-${day} ${hour}:${minute}`;
+	},
+
 	tags: ['a', 'abbr', 'acronym', 'address', 'applet', 'area', 'article', 'aside', 'audio', 'b', 'base', 'basefont',
 		'bdi', 'bdo', 'big', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'center', 'cite', 'code', 'col', 'colgroup',
 		'command', 'datalist', 'dd', 'del', 'details', 'dfn', 'dialog', 'dir', 'div', 'dl', 'dt', 'em', 'embed',

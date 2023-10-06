@@ -106,6 +106,7 @@ function modifyTopic(topic, fields) {
 
 	if (topic.hasOwnProperty('timestamp')) {
 		topic.timestampISO = utils.toISOString(topic.timestamp);
+		topic.timestampLocalTime = utils.formatTimeStamp2LocalTime(topic.timestamp);
 		if (!fields.length || fields.includes('scheduled')) {
 			topic.scheduled = topic.timestamp > Date.now();
 		}
