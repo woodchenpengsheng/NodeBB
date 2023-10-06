@@ -474,11 +474,16 @@ const utils = {
 
 	formatTimeStamp2LocalTime: function (timestamp) {
 		const date = new Date(timestamp);
-		const year = date.getFullYear();
-		const month = (date.getMonth() + 1).toString().padStart(2, '0');
-		const day = date.getDate().toString().padStart(2, '0');
-		const hour = date.getHours().toString().padStart(2, '0');
-		const minute = date.getMinutes().toString().padStart(2, '0');
+		// 获取服务器时间的时区偏移，以分钟为单位
+		const serverTimezoneOffset = date.getTimezoneOffset();
+		// 获取服务器时间相对于东八的偏移，按照分钟为单位
+		const transServerTime = serverTimezoneOffset + 480;
+		const localTime = new Date(timestamp + (transServerTime * 60 * 1000));
+		const year = localTime.getFullYear();
+		const month = (localTime.getMonth() + 1).toString().padStart(2, '0');
+		const day = localTime.getDate().toString().padStart(2, '0');
+		const hour = localTime.getHours().toString().padStart(2, '0');
+		const minute = localTime.getMinutes().toString().padStart(2, '0');
 		return `${year}-${month}-${day} ${hour}:${minute}`;
 	},
 
