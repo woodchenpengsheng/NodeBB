@@ -135,6 +135,7 @@ events.getEventsByEventIds = async (eids) => {
 		e.user = undefined;
 		event.jsonString = JSON.stringify(e, null, 4);
 		event.timestampISO = new Date(parseInt(event.timestamp, 10)).toUTCString();
+		event.timestampLocalTime = utils.formatTimeStamp2LocalTime(parseInt(event.timestamp, 10));
 	});
 	return eventsData;
 };

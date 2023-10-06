@@ -28,7 +28,6 @@ module.exports = function (utils, Benchpress, relative_path) {
 		generateRepliedTo,
 		generateWrote,
 		isoTimeToLocaleString,
-		isoTimeToLocaleStringRemoveSecond,
 		shouldHideReplyContainer,
 		humanReadableNumber,
 		formattedNumber,
@@ -344,16 +343,6 @@ module.exports = function (utils, Benchpress, relative_path) {
 
 	function isoTimeToLocaleString(isoTime) {
 		return new Date(isoTime).toLocaleString().replace(/,/g, '&#44;');
-	}
-
-	function isoTimeToLocaleStringRemoveSecond(isoTime) {
-		const date = new Date(isoTime);
-		const year = date.getFullYear();
-		const month = (date.getMonth() + 1).toString().padStart(2, '0');
-		const day = date.getDate().toString().padStart(2, '0');
-		const hour = date.getHours().toString().padStart(2, '0');
-		const minute = date.getMinutes().toString().padStart(2, '0');
-		return `${year}-${month}-${day} ${hour}:${minute}`;
 	}
 
 	function shouldHideReplyContainer(post) {

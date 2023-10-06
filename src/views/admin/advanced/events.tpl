@@ -16,7 +16,8 @@
 							{{{ if events.ip }}}<span class="badge bg-info">{events.ip}</span>{{{ end }}}
 							<a href="{config.relative_path}/user/{events.user.userslug}" target="_blank">{buildAvatar(events.user, "24px", true)}</a>
 							<a href="{config.relative_path}/user/{events.user.userslug}" target="_blank">{events.user.username}</a>
-							<span class="text-xs">{isoTimeToLocaleStringRemoveSecond(events.timestampISO)}</span>
+							<span class="text-xs">{events.timestampLocalTime}</span>
+							<!-- <span class="text-xs">{isoTimeToLocaleStringRemoveSecond(events.timestampISO)}</span> -->
 						</div>
 						<div>
 							<button class="btn btn-light btn-sm delete-event ms-2 pointer"><i class="fa fa-trash-o text-danger"></i></button>
