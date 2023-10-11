@@ -10,7 +10,7 @@ const privileges = require('../privileges');
 
 const apiHelpers = require('./helpers');
 
-const { doTopicAction } = apiHelpers;
+const { doTopicAction, doTopicActionPreCheck } = apiHelpers;
 
 const websockets = require('../socket.io');
 const socketHelpers = require('../socket.io/helpers');
@@ -147,6 +147,19 @@ topicsAPI.pin = async function (caller, { tids, expiry }) {
 
 topicsAPI.unpin = async function (caller, data) {
 	await doTopicAction('unpin', 'event:topic_unpinned', caller, {
+		tids: data.tids,
+	});
+};
+
+topicsAPI.expire = async function (caller, { tids, expire }) {
+	const action = 'tryexpire';
+	await doTopicActionPreCheck(action, { tids });
+	await Promise.all(tids.map(async tid => topics.tools.setExpire(tid, expire, caller.uid)));
+	await doTopicAction(action, 'event:topic_try_expire', caller, { tids });
+};
+
+topicsAPI.unexpire = async function (caller, data) {
+	await doTopicAction('unexpire', 'event:topic_unexpire', caller, {
 		tids: data.tids,
 	});
 };

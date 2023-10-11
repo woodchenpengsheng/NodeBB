@@ -111,6 +111,8 @@ module.exports = function (Topics) {
 			db.sortedSetsRemove([
 				`cid:${topicData.cid}:tids`,
 				`cid:${topicData.cid}:tids:pinned`,
+				`cid:${topicData.cid}:tids:setexpirecheck`,
+				`cid:${topicData.cid}:tids:expire`,
 				`cid:${topicData.cid}:tids:posts`,
 				`cid:${topicData.cid}:tids:lastposttime`,
 				`cid:${topicData.cid}:tids:votes`,

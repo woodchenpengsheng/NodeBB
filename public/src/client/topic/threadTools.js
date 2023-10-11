@@ -2,6 +2,7 @@
 
 
 define('forum/topic/threadTools', [
+	'forum/topic/expireTopic',
 	'forum/topic/freeReputation',
 	'components',
 	'translator',
@@ -12,7 +13,10 @@ define('forum/topic/threadTools', [
 	'bootbox',
 	'alerts',
 	'bootstrap',
-], function (freeReputation, components, translator, handleBack, posts, api, hooks, bootbox, alerts, bootstrap) {
+], function (
+	expireTopic, freeReputation, components, translator,
+	handleBack, posts, api, hooks, bootbox, alerts, bootstrap
+) {
 	const ThreadTools = {};
 
 	ThreadTools.init = function (tid, topicContainer) {
@@ -147,6 +151,7 @@ define('forum/topic/threadTools', [
 		});
 
 		freeReputation.init(tid, topicContainer);
+		expireTopic.init(tid, topicContainer);
 
 		function changeWatching(type, state = 1) {
 			const method = state ? 'put' : 'del';
@@ -303,6 +308,22 @@ define('forum/topic/threadTools', [
 		});
 	};
 
+	ThreadTools.setExpireState = function (data) {
+		const threadEl = components.get('topic');
+		if (parseInt(data.tid, 10) !== parseInt(threadEl.attr('data-tid'), 10)) {
+			return;
+		}
+
+		const expireFlag = !!data.expire;
+		components.get('topic/expire').toggleClass('hidden', expireFlag).parent().attr('hidden', data.expire ? '' : null);
+		components.get('topic/unexpire').toggleClass('hidden', !expireFlag).parent().attr('hidden', !expireFlag ? '' : null);
+		$('[component="topic/labels"] [component="topic/expire"]').toggleClass('hidden', !expireFlag);
+		const willExpireFlag = expireFlag || !data.expireTime;
+		$('[component="topic/labels"] [component="topic/will-expire"]').toggleClass('hidden', willExpireFlag);
+		ajaxify.data.expire = data.expire;
+		ajaxify.data.expireTime = data.expireTime;
+	};
+
 	ThreadTools.setLockedState = function (data) {
 		const threadEl = components.get('topic');
 		if (parseInt(data.tid, 10) !== parseInt(threadEl.attr('data-tid'), 10)) {
@@ -310,7 +331,6 @@ define('forum/topic/threadTools', [
 		}
 
 		const isLocked = data.isLocked && !ajaxify.data.privileges.isAdminOrMod;
-
 		components.get('topic/lock').toggleClass('hidden', data.isLocked).parent().attr('hidden', data.isLocked ? '' : null);
 		components.get('topic/unlock').toggleClass('hidden', !data.isLocked).parent().attr('hidden', !data.isLocked ? '' : null);
 

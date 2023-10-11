@@ -107,6 +107,8 @@
     "upload-error-fallback": "无法上传图片 — %1",
     "scheduling-to-past": "请选择一个未来的日期。",
     "invalid-schedule-date": "请输入正确的日期",
+    "cant-expire-pinned": "置顶的主题不能被(过期)",
+    "cant-expire-scheduled": "定时主题不能被过期",
     "cant-pin-scheduled": "定时主题不能被（取消）置顶。",
     "cant-merge-scheduled": "定时主题不能被合并。",
     "cant-move-posts-to-scheduled": "不能把帖子移动到定时主题中。",

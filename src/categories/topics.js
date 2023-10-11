@@ -34,12 +34,16 @@ module.exports = function (Categories) {
 			Categories.getSortedSetRangeDirection(data.sort),
 		]);
 
+		// 总共有多少个置顶的
 		const totalPinnedCount = pinnedTids.length;
+		// 如果是分页的话，当前页面要置顶的。
 		const pinnedTidsOnPage = pinnedTids.slice(data.start, data.stop !== -1 ? data.stop + 1 : undefined);
+		// 获得实际上的个数
 		const pinnedCountOnPage = pinnedTidsOnPage.length;
+		// 一页上面有多少个
 		const topicsPerPage = data.stop - data.start + 1;
+		// 获取剩余的tid
 		const normalTidsToGet = Math.max(0, topicsPerPage - pinnedCountOnPage);
-
 		if (!normalTidsToGet && data.stop !== -1) {
 			return pinnedTidsOnPage;
 		}
@@ -71,7 +75,26 @@ module.exports = function (Categories) {
 			normalTids = await db[reverse ? 'getSortedSetRevRange' : 'getSortedSetRange'](set, start, stop);
 		}
 		normalTids = normalTids.filter(tid => !pinnedTids.includes(tid));
-		return pinnedTidsOnPage.concat(normalTids);
+		const afterCheckExpire = await topics.tools.checkExpire(normalTids);
+		normalTids = afterCheckExpire;
+		// 未过期的tid
+		const notExpireTidsOnPage = pinnedTidsOnPage.concat(normalTids);
+		// 判断当前页面上是否还有空间容纳过期的
+		const expireTidsToGet = Math.max(0, topicsPerPage - notExpireTidsOnPage.length);
+		if (!expireTidsToGet && data.stop !== -1) {
+			return notExpireTidsOnPage;
+		}
+
+		const totalCount = await Categories.getNormalTidsCount(0, -1, set) + totalPinnedCount;
+		let expireStart = data.start;
+		if (expireStart > 0 && totalCount) {
+			expireStart -= totalCount - notExpireTidsOnPage.length;
+		}
+		const expireStop = data.stop === -1 ? data.stop : expireStart + expireTidsToGet - 1;
+		let expireTids = await Categories.getExpireTids(data.cid, expireStart, expireStop);
+		expireTids = expireTids.filter(tid => !notExpireTidsOnPage.includes(tid));
+
+		return notExpireTidsOnPage.concat(expireTids);
 	};
 
 	Categories.getTopicCount = async function (data) {
@@ -134,7 +157,23 @@ module.exports = function (Categories) {
 	};
 
 	Categories.getAllTopicIds = async function (cid, start, stop) {
-		return await db.getSortedSetRange([`cid:${cid}:tids:pinned`, `cid:${cid}:tids`], start, stop);
+		return await db.getSortedSetRange([`cid:${cid}:tids:pinned`, `cid:${cid}:tids`, `cid:${cid}:tids:expire`], start, stop);
+	};
+
+	Categories.getNormalTidsCount = async function (start, stop, set) {
+		let tidsCount = 0;
+		if (Array.isArray(set)) {
+			const weights = set.map((s, index) => (index ? 0 : 1));
+			tidsCount = (await db.getSortedSetIntersect({ sets: set, start: start, stop: stop, weights: weights })).length;
+		} else {
+			const isNeedAll = start === 0 && stop === -1;
+			if (isNeedAll) {
+				tidsCount = await db.sortedSetCard(set);
+			} else {
+				tidsCount = (await db.getSortedSetRange(set, start, stop)).length;
+			}
+		}
+		return tidsCount;
 	};
 
 	Categories.getPinnedTids = async function (data) {
@@ -152,6 +191,10 @@ module.exports = function (Categories) {
 		const pinnedTids = canSchedule ? allPinnedTids : await filterScheduledTids(allPinnedTids);
 
 		return await topics.tools.checkPinExpiry(pinnedTids);
+	};
+
+	Categories.getExpireTids = async function (cid, start, stop) {
+		return await db.getSortedSetRevRange(`cid:${cid}:tids:expire`, start, stop);
 	};
 
 	Categories.modifyTopicsByPrivilege = function (topics, privileges) {

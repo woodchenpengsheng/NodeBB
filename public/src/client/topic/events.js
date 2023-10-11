@@ -25,6 +25,9 @@ define('forum/topic/events', [
 		'event:topic_locked': threadTools.setLockedState,
 		'event:topic_unlocked': threadTools.setLockedState,
 
+		'event:topic_try_expire': threadTools.setExpireState,
+		'event:topic_unexpire': threadTools.setExpireState,
+
 		'event:topic_pinned': threadTools.setPinnedState,
 		'event:topic_unpinned': threadTools.setPinnedState,
 

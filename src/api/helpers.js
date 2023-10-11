@@ -48,6 +48,23 @@ exports.buildReqObject = (req, payload) => {
 	};
 };
 
+exports.doTopicActionPreCheck = async function (action, { tids }) {
+	if (!Array.isArray(tids)) {
+		throw new Error('[[error:invalid-tid]]');
+	}
+
+	const exists = await topics.exists(tids);
+	if (!exists.every(Boolean)) {
+		throw new Error('[[error:no-topic]]');
+	}
+
+	if (typeof topics.tools[action] !== 'function') {
+		return;
+	}
+
+	return true;
+};
+
 exports.doTopicAction = async function (action, event, caller, { tids }) {
 	if (!Array.isArray(tids)) {
 		throw new Error('[[error:invalid-tid]]');

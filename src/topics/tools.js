@@ -118,6 +118,51 @@ module.exports = function (Topics) {
 		return await togglePin(tid, uid, false);
 	};
 
+	topicTools.tryexpire = async function (tid /* uid */) {
+		await topicTools.checkExpire([tid]);
+		return await Topics.getTopicData(tid);
+	};
+
+	topicTools.unexpire = async function (tid, uid) {
+		return await toogleExpire(tid, uid, false);
+	};
+
+	topicTools.setExpire = async (tid, expire, uid) => {
+		if (isNaN(parseInt(expire, 10))) {
+			throw new Error('[[error:invalid-data]]');
+		}
+
+		const topicData = await Topics.getTopicFields(tid, ['tid', 'uid', 'cid']);
+		const isAdminOrMod = await privileges.categories.isAdminOrMod(topicData.cid, uid);
+		if (!isAdminOrMod) {
+			throw new Error('[[error:no-privileges]]');
+		}
+
+		const promises = [
+			Topics.setTopicField(tid, 'expireTime', expire),
+			db.sortedSetAdd(`cid:${topicData.cid}:tids:setexpirecheck`, expire, tid),
+		];
+
+		await Promise.all(promises);
+	};
+
+	topicTools.checkExpire = async (tids) => {
+		const expiry = (await topics.getTopicsFields(tids, ['expireTime'])).map(obj => obj.expireTime);
+		const now = Date.now();
+
+		tids = await Promise.all(tids.map(async (tid, idx) => {
+			if (expiry[idx] && parseInt(expiry[idx], 10) <= now) {
+				await toogleExpire(tid, 'system', true);
+				return null;
+			}
+
+			return tid;
+		}));
+
+		return tids.filter(Boolean);
+	};
+
+
 	topicTools.setPinExpiry = async (tid, expiry, uid) => {
 		if (isNaN(parseInt(expiry, 10)) || expiry <= Date.now()) {
 			throw new Error('[[error:invalid-data]]');
@@ -149,8 +194,60 @@ module.exports = function (Topics) {
 		return tids.filter(Boolean);
 	};
 
+	async function toogleExpire(tid, uid, expire) {
+		let topicData = await Topics.getTopicData(tid);
+		if (!topicData) {
+			throw new Error('[[error:no-topic]]');
+		}
+
+		if (topicData.scheduled) {
+			throw new Error('[[error:cant-expire-scheduled]]');
+		}
+
+		// 如果当前置顶的话，首先取消置顶
+		if (topicData.pinned && expire) {
+			topicData = await togglePin(tid, uid, false);
+		}
+
+		if (uid !== 'system' && !await privileges.topics.isAdminOrMod(tid, uid)) {
+			throw new Error('[[error:no-privileges]]');
+		}
+
+		const expireValue = expire ? 1 : 0;
+		// 打上expire标记，默认为没有过期标记
+		const promises = [
+			Topics.setTopicField(tid, 'expire', expireValue),
+		];
+
+		if (expire) {
+			promises.push(db.sortedSetAdd(`cid:${topicData.cid}:tids:expire`, topicData.expireTime || Date.now(), tid));
+			promises.push(db.sortedSetsRemove([
+				`cid:${topicData.cid}:tids`,
+				`cid:${topicData.cid}:tids:posts`,
+				`cid:${topicData.cid}:tids:votes`,
+				`cid:${topicData.cid}:tids:views`,
+				`cid:${topicData.cid}:tids:setexpirecheck`,
+			], tid));
+		} else {
+			promises.push(db.sortedSetRemove(`cid:${topicData.cid}:tids:expire`, tid));
+			// 去掉过期时间
+			promises.push(Topics.deleteTopicField(tid, 'expireTime'));
+			promises.push(db.sortedSetAddBulk([
+				[`cid:${topicData.cid}:tids`, topicData.lastposttime, tid],
+				[`cid:${topicData.cid}:tids:posts`, topicData.postcount, tid],
+				[`cid:${topicData.cid}:tids:votes`, parseInt(topicData.votes, 10) || 0, tid],
+				[`cid:${topicData.cid}:tids:views`, topicData.viewcount, tid],
+			]));
+			topicData.expireTime = undefined;
+		}
+
+		await Promise.all(promises);
+		topicData.expire = expireValue;
+		return topicData;
+	}
+
 	async function togglePin(tid, uid, pin) {
-		const topicData = await Topics.getTopicData(tid);
+		let topicData = await Topics.getTopicData(tid);
 		if (!topicData) {
 			throw new Error('[[error:no-topic]]');
 		}
@@ -161,6 +258,11 @@ module.exports = function (Topics) {
 
 		if (uid !== 'system' && !await privileges.topics.isAdminOrMod(tid, uid)) {
 			throw new Error('[[error:no-privileges]]');
+		}
+
+		// 如果当前过期的话，并且需要置顶的话，首先取消过期
+		if (topicData.expire && pin) {
+			topicData = await toogleExpire(tid, uid, false);
 		}
 
 		const promises = [
@@ -243,6 +345,8 @@ module.exports = function (Topics) {
 		await db.sortedSetsRemove([
 			`cid:${topicData.cid}:tids`,
 			`cid:${topicData.cid}:tids:pinned`,
+			`cid:${topicData.cid}:tids:expire`,
+			`cid:${topicData.cid}:tids:setexpirecheck`,
 			`cid:${topicData.cid}:tids:posts`,
 			`cid:${topicData.cid}:tids:votes`,
 			`cid:${topicData.cid}:tids:views`,
@@ -262,7 +366,12 @@ module.exports = function (Topics) {
 		];
 		if (topicData.pinned) {
 			bulk.push([`cid:${cid}:tids:pinned`, Date.now(), tid]);
+		} else if (topicData.expire) {
+			bulk.push([`cid:${cid}:tids:expire`, topicData.expireTime, tid]);
 		} else {
+			if (topicData.expireTime && topicData.expireTime > Date.now()) {
+				bulk.push([`cid:${cid}:tids:setexpirecheck`, topicData.expireTime, tid]);
+			}
 			bulk.push([`cid:${cid}:tids`, topicData.lastposttime, tid]);
 			bulk.push([`cid:${cid}:tids:posts`, topicData.postcount, tid]);
 			bulk.push([`cid:${cid}:tids:votes`, votes, tid]);
