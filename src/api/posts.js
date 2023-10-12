@@ -298,7 +298,7 @@ postsAPI.upvote = async function (caller, data) {
 };
 
 postsAPI.downvote = async function (caller, data) {
-	return await apiHelpers.postCommand(caller, 'downvote', 'voted', '', data);
+	return await apiHelpers.postCommand(caller, 'downvote', 'voted', 'notifications:downvoted_your_post_in', data);
 };
 
 postsAPI.unvote = async function (caller, data) {

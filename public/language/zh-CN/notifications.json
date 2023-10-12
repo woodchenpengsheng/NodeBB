@@ -21,6 +21,7 @@
     "my-flags": "指派举报给我",
     "bans": "封禁",
     "new_message_from": "来自 <strong>%1</strong> 的新消息",
+    "downvoted_your_post_in": "<strong>%1</strong> 在 <strong>%2</strong> 踩了您的帖子。",
     "upvoted_your_post_in": "<strong>%1</strong> 在 <strong>%2</strong> 点赞了您的帖子。",
     "upvoted_your_post_in_dual": "<strong>%1</strong> 和 <strong>%2</strong> 在 <strong>%3</strong> 赞了您的帖子。",
     "upvoted_your_post_in_multiple": "<strong>%1</strong> 和 %2 个其他人在 <strong>%3</strong> 赞了您的帖子。",
