@@ -78,10 +78,12 @@ events.types = [
 	'chat-room-deleted',
 	// To add new types from plugins, just Array.push() to this array
 	'unlock-identity',
+	'unlock-identity-vip',
 	'recharge-notify',
 	'recharge-succeed',
 	'enter-recharge-page',
 	'trying-recharge',
+	'reputation-cost-succeed',
 ];
 
 /**

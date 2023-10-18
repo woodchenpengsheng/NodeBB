@@ -52,6 +52,16 @@ module.exports = function (User) {
 		}, { alwaysStartAt: 0 });
 	}
 
+	async function deleteUserRelatedTopicContact(uid) {
+		await batch.processSortedSet(`uid:${uid}:contact`, async (ids) => {
+			await async.eachSeries(ids, async (tid) => {
+				await topics.lockcontact.deleteContact(uid, tid);
+			});
+		}, {});
+		const key = `uid:${uid}:contact`;
+		await db.delete(key);
+	}
+
 	async function deleteUploads(callerUid, uid) {
 		const uploads = await db.getSortedSetMembers(`uid:${uid}:uploads`);
 		await User.deleteUpload(callerUid, uid, uploads);
@@ -148,6 +158,7 @@ module.exports = function (User) {
 			deleteUserIps(uid),
 			deleteUserFromFollowers(uid),
 			deleteImages(uid),
+			deleteUserRelatedTopicContact(uid),
 			groups.leaveAllGroups(uid),
 			flags.resolveFlag('user', uid, uid),
 			User.reset.cleanByUid(uid),

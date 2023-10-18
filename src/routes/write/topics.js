@@ -23,6 +23,7 @@ module.exports = function () {
 
 	setupApiRoute(router, 'put', '/:tid/unlockContact', [...middlewares], controllers.write.topics.unlockContact);
 	setupApiRoute(router, 'put', '/:tid/freeTopicReputation', [...middlewares, middleware.checkRequired.bind(null, ['free'])], controllers.write.topics.freeTopicReputation);
+	setupApiRoute(router, 'put', '/:tid/vipUnLockContact', [...middlewares], controllers.write.topics.vipUnLockContact);
 
 	setupApiRoute(router, 'put', '/:tid/expireTopic', [...middlewares, middleware.assert.topic, middleware.checkRequired.bind(null, ['expire'])], controllers.write.topics.expireTopic);
 	setupApiRoute(router, 'delete', '/:tid/expireTopic', [...middlewares, middleware.assert.topic], controllers.write.topics.unExpireTopic);

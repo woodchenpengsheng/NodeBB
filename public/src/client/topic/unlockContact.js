@@ -47,6 +47,37 @@ define('forum/topic/unlockContact', [
 			}
 			return false;
 		});
+
+		topicContainer.on('click', '[component="recharge/vip"]', function () {
+			if (!ajaxify.data.loggedIn) {
+				alerts.error('您尚未登陆，6秒后自动跳转到登陆界面，登陆后才能开通vip。如果尚未注册，需要先点下右下角的小人注册按钮，完成注册哦。', 6000);
+				setTimeout(() => {
+					window.location.href = config.relative_path + '/login';
+				}, 6000);
+			} else {
+				window.location.href = config.relative_path + '/recharge';
+			}
+			return false;
+		});
+
+		topicContainer.on('click', '[component="topic/vip-unlock"]', function () {
+			if (!ajaxify.data.loggedIn) {
+				alerts.error('您尚未登陆，6秒后自动跳转到登陆界面，登陆成功后进行解锁。如果尚未注册，需要先点下右下角的小人注册按钮，完成注册哦。', 6000);
+				setTimeout(() => {
+					window.location.href = config.relative_path + '/login';
+				}, 6000);
+			} else {
+				api.put(`/topics/${tid}/vipUnLockContact`, {})
+					.then(() => {
+						alerts.success(`解锁成功，3秒后自动刷新当前页面`);
+						setTimeout(() => {
+							window.location.reload();
+						}, 3000);
+					})
+					.catch(alerts.error);
+			}
+			return false;
+		});
 	};
 	return unlockContact;
 });

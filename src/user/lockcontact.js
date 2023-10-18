@@ -15,11 +15,6 @@ module.exports = function (User) {
 		await db.sortedSetRemove(key, tid);
 	};
 
-	User.deleteAllContact = async function (uid) {
-		const key = `uid:${uid}:contact`;
-		await db.delete(key);
-	};
-
 	// 判断某一个用户在某一个tid下是否已经解锁成功了？
 	User.isUnLockContact = async function (uid, tid) {
 		const key = `uid:${uid}:contact`;

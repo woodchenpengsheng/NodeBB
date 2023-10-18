@@ -1,5 +1,6 @@
 'use strict';
 
+const async = require('async');
 const db = require('../database');
 
 const user = require('../user');
@@ -66,7 +67,7 @@ module.exports = function (Topics) {
 		}
 		deletedTopic.tags = tags;
 		await deleteFromFollowersIgnorers(tid);
-
+		await deleteTopicRelatedUserContact(tid);
 		await Promise.all([
 			db.deleteAll([
 				`tid:${tid}:followers`,
@@ -103,6 +104,16 @@ module.exports = function (Topics) {
 		const followerKeys = followers.map(uid => `uid:${uid}:followed_tids`);
 		const ignorerKeys = ignorers.map(uid => `uid:${uid}ignored_tids`);
 		await db.sortedSetsRemove(followerKeys.concat(ignorerKeys), tid);
+	}
+
+	async function deleteTopicRelatedUserContact(tid) {
+		const key = `tid:${tid}:contact`;
+		await batch.processSortedSet(key, async (ids) => {
+			await async.eachSeries(ids, async (uid) => {
+				await user.deleteContact(uid, tid);
+			});
+		}, {});
+		await db.delete(key);
 	}
 
 	async function deleteTopicFromCategoryAndUser(tid) {

@@ -7,7 +7,6 @@ const user = require('../user');
 const cache = require('../cache');
 const utils = require('../utils');
 
-
 const LockContact = module.exports;
 
 // db.objects.deleteMany({"_key": {
@@ -80,6 +79,7 @@ LockContact.deleteContact = async function (uid, tid) {
 LockContact.deleteAllContact = async function (tid) {
 	const key = `tid:${tid}:contact`;
 	await db.delete(key);
+	await topics.setTopicField(tid, 'numUnLockContact', 0);
 };
 
 LockContact.isUnLockContact = async function (uid, tid) {

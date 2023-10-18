@@ -193,7 +193,7 @@ Topics.getTopicWithPosts = async function (topicData, set, uid, start, stop, rev
 
 	topicData.thumbs = thumbs[0];
 	topicData.identity = identities[0];
-	topicData.unlockContact = unlockContacts[0];
+	topicData.reputationUnlockContact = unlockContacts[0];
 	topicData.posts = posts;
 	topicData.events = events;
 	topicData.posts.forEach((p) => {

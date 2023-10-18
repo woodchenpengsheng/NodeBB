@@ -163,6 +163,16 @@ Topics.unlockContact = async (req, res) => {
 	helpers.formatApiResponse(200, res, unlockResult);
 };
 
+Topics.vipUnLockContact = async (req, res) => {
+	const unlockResult = await api.topics.vipUnLockContact(req, {
+		...req.body,
+		tid: req.params.tid,
+		uid: req.uid,
+	});
+
+	helpers.formatApiResponse(200, res, unlockResult);
+};
+
 Topics.freeTopicReputation = async (req, res) => {
 	const freeResult = await api.topics.freeTopicReputation(req, {
 		...req.body,

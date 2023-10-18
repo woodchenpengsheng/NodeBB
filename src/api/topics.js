@@ -7,6 +7,7 @@ const topics = require('../topics');
 const posts = require('../posts');
 const meta = require('../meta');
 const privileges = require('../privileges');
+const plugins = require('../plugins');
 
 const apiHelpers = require('./helpers');
 
@@ -313,6 +314,26 @@ topicsAPI.unLockContact = async (caller, data) => {
 	});
 
 	return newReputation;
+};
+
+topicsAPI.vipUnLockContact = async (caller, data) => {
+	if (!data || !data.tid) {
+		throw new Error('[[error:invalid-data]]');
+	}
+
+	if (!data.uid) {
+		throw new Error('[[error:not-logged-in]]');
+	}
+
+	const { tid, uid } = data;
+	// 判断用户的vip有没有到时间了，如果到了的话，提示过期
+	const result = await plugins.hooks.fire('filter:user.vip:canUnLock:check', { uid, tid, canUnLock: true });
+	if (!result.canUnLock) {
+		const message = result.msg || '[[error:invalid-data]]';
+		throw new Error(message);
+	}
+
+	plugins.hooks.fire('action:user.vip:unlock', { caller, data });
 };
 
 topicsAPI.freeTopicReputation = async (caller, data) => {
